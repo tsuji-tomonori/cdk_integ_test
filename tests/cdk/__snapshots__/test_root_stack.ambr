@@ -1,0 +1,121 @@
+# serializer version: 1
+# name: test_snapshot
+  dict({
+    'Parameters': dict({
+      'BootstrapVersion': dict({
+        'Default': '/cdk-bootstrap/hnb659fds/version',
+        'Description': 'Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]',
+        'Type': 'AWS::SSM::Parameter::Value<String>',
+      }),
+    }),
+    'Resources': dict({
+      'apphellofunction1BC4953D': dict({
+        'DependsOn': list([
+          'apphellofunctionServiceRole2C74464E',
+        ]),
+        'Properties': dict({
+          'Code': dict({
+            'S3Bucket': dict({
+              'Fn::Sub': 'cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}',
+            }),
+            'S3Key': str,
+          }),
+          'Environment': dict({
+            'Variables': dict({
+              'LOG_LEVEL': 'INFO',
+              'POWERTOOLS_SERVICE_NAME': 'hello',
+            }),
+          }),
+          'FunctionName': 'integ-lambda-hello',
+          'Handler': 'lambda_function.lambda_handler',
+          'MemorySize': 128,
+          'Role': dict({
+            'Fn::GetAtt': list([
+              'apphellofunctionServiceRole2C74464E',
+              'Arn',
+            ]),
+          }),
+          'Runtime': 'python3.11',
+        }),
+        'Type': 'AWS::Lambda::Function',
+      }),
+      'apphellofunctionServiceRole2C74464E': dict({
+        'Properties': dict({
+          'AssumeRolePolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': 'sts:AssumeRole',
+                'Effect': 'Allow',
+                'Principal': dict({
+                  'Service': 'lambda.amazonaws.com',
+                }),
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+          'ManagedPolicyArns': list([
+            dict({
+              'Fn::Join': list([
+                '',
+                list([
+                  'arn:',
+                  dict({
+                    'Ref': 'AWS::Partition',
+                  }),
+                  ':iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
+                ]),
+              ]),
+            }),
+          ]),
+        }),
+        'Type': 'AWS::IAM::Role',
+      }),
+      'apphellologs3250E3D9': dict({
+        'DeletionPolicy': 'Delete',
+        'Properties': dict({
+          'LogGroupName': dict({
+            'Fn::Join': list([
+              '',
+              list([
+                '/aws/lambda/',
+                dict({
+                  'Ref': 'apphellofunction1BC4953D',
+                }),
+              ]),
+            ]),
+          }),
+          'RetentionInDays': 400,
+        }),
+        'Type': 'AWS::Logs::LogGroup',
+        'UpdateReplacePolicy': 'Delete',
+      }),
+    }),
+    'Rules': dict({
+      'CheckBootstrapVersion': dict({
+        'Assertions': list([
+          dict({
+            'Assert': dict({
+              'Fn::Not': list([
+                dict({
+                  'Fn::Contains': list([
+                    list([
+                      '1',
+                      '2',
+                      '3',
+                      '4',
+                      '5',
+                    ]),
+                    dict({
+                      'Ref': 'BootstrapVersion',
+                    }),
+                  ]),
+                }),
+              ]),
+            }),
+            'AssertDescription': "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+          }),
+        ]),
+      }),
+    }),
+  })
+# ---

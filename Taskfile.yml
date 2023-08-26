@@ -1,0 +1,26 @@
+version: "3"
+
+env:
+  AWS_PROFILE: "admin"
+
+tasks:
+  deploy:
+    cmds:
+      - cdk deploy
+  diff:
+    cmds:
+      - cdk diff
+  snapshot-update:
+    cmds:
+      - pytest tests/cdk --snapshot-update
+  mfa:
+    cmds:
+      - aws-mfa
+  check:
+    cmds:
+      - pytest tests
+      - mypy src cdk
+      - ruff check .
+  integ-test:
+    cmds:
+      - integ-runner --update-on-failed --parallel-regions ap-northeast-1 --directory ./tests/cdk --language python --app python3.11
